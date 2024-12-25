@@ -3,7 +3,7 @@ use std::ops::Deref;
 use std::ops::DerefMut;
 
 pub trait Field: Num + Copy {}
-impl Field for i32 {}
+impl<T: Num + Copy> Field for T {}
 
 #[derive(Debug, Copy, Clone)]
 pub struct Matrix<F: Field, const R: usize, const C: usize> ([[F; C]; R]); 
@@ -41,13 +41,36 @@ impl<F: Field, const R: usize, const C: usize> Matrix<F, R, C> {
         Vector(column)
     }
 
-    pub fn scale(&mut self, scalar: F) {
+    pub fn transpose(&self) -> Matrix<F, C, R> {
+        let mut result: [[F; R]; C] = [[F::zero(); R]; C];
+
         for i in 0..R {
             for j in 0..C {
-                self[i][j] = scalar * self[i][j];
+                result[j][i] = self[i][j];
+            }
+        }
+
+        Matrix(result)
+    }
+
+    /*
+    pub fn reduce(&self) -> Matrix<F, R, C> { // row reduction
+        let mut result: [[F; C]; R] = self.0.clone();
+        for above_index in 0..R {
+            most_significant = 0;
+            while result[above_index][most_significant] != F::zero() {
+
+            }
+            for below_index in above_index..R {
+                scalar = 
             }
         }
     }
+
+    pub fn rank(&self) -> usize {
+
+    }
+    */
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -65,6 +88,46 @@ impl<F: Field, const R: usize> DerefMut for Vector<F, R> {
 }
 
 // Functions 
+pub fn vscale<F: Field, const R: usize>(scalar: F, vector: Vector<F, R>) -> Vector<F, R> { 
+    let mut result: [F; R] = [F::zero(); R];
+    for i in 0..R {
+        result[i] = scalar * vector[i];
+    }
+
+    Vector(result)
+}
+
+pub fn mscale<F: Field, const R: usize, const C: usize>(scalar: F, matrix: Matrix<F, R, C>) -> Matrix<F, R, C> { 
+    let mut result: [[F; C]; R] = [[F::zero(); C]; R];
+    for i in 0..R {
+        for j in 0..C {
+            result[i][j] = scalar * matrix[i][j];
+        }
+    }
+
+    Matrix(result)
+}
+
+pub fn vadd<F: Field, const R: usize>(left: Vector<F, R>, right: Vector<F, R>) -> Vector<F, R> { 
+    let mut result: [F; R] = [F::zero(); R];
+    for i in 0..R {
+        result[i] = left[i] + right[i];
+    }
+
+    Vector(result)
+}
+
+pub fn madd<F: Field, const R: usize, const C: usize>(left: Matrix<F, R, C>, right: Matrix<F, R, C>) -> Matrix<F, R, C> { 
+    let mut result: [[F; C]; R] = [[F::zero(); C]; R];
+    for i in 0..R {
+        for j in 0..C {
+            result[i][j] = left[i][j] + right[i][j];
+        }
+    }
+
+    Matrix(result)
+}
+
 pub fn dot<F: Field, const R: usize>(left: Vector<F, R>, right: Vector<F, R>) -> F {
     let mut product: F = F::zero();
     for i in 0..R {
@@ -72,17 +135,6 @@ pub fn dot<F: Field, const R: usize>(left: Vector<F, R>, right: Vector<F, R>) ->
     }
 
     product
-}
-
-pub fn smul<F: Field, const R: usize, const C: usize>(scalar: F, right: Matrix<F, R, C>) -> Matrix<F, R, C> { 
-    let mut result: [[F; C]; R] = [[F::zero(); C]; R];
-    for i in 0..R {
-        for j in 0..C {
-            result[i][j] = scalar * right[i][j];
-        }
-    }
-
-    Matrix(result)
 }
 
 pub fn mmul<F: Field, const L: usize, const M: usize, const N: usize>(left: Matrix<F, L, M>, right: Matrix<F, M, N>) -> Matrix<F, L, N> { // try strassen for large?
@@ -95,7 +147,7 @@ pub fn mmul<F: Field, const L: usize, const M: usize, const N: usize>(left: Matr
         
     Matrix(result)
 }
-    
+
 pub fn vmul<F: Field, const R: usize, const C: usize>(left: Matrix<F, R, C>, right: Vector<F, C>) -> Vector<F, R> {
     let mut result:[F; R]  = [F::zero(); R];
     for i in 0..R {
