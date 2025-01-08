@@ -1,21 +1,22 @@
 # Rust Linear Algebra Library
 ## Features
-- Vectors and Matrices 
-    * Using Arrays
-    * Bases
-    * polynomials?
-
+- [ ] Vector Datastructure
+- [ ] Matrix Datastructure
 - Functions
-    * Matrix Multiplication
-    * Inner Product / Dot Product
-        + Angle
-        + Orthogonalization
-    * Row Reduction
-        + Rank Calculation
-    * Transposition
-    * Determinant
-    * Inverse
-    * Eigenvalues and Eigenvectors
-        + Diagonalization
-        + Jordan Canonical Form
-        + Exponentiation
+    - [x] Vector addition and scalar multiplication
+    - [x] Matrix addition and scalar multiplication
+    - [x] Transposition
+    - [x] Matrix Multiplication
+    - [x] Dot Product
+        - [ ] Angle
+        - [ ] Orthogonalization
+    - [ ] Row Reduction
+        - Rank Calculation
+    - [ ] Determinant
+    - [ ] Inverse
+    - [ ] Eigenvalues and Eigenvectors
+        - Diagonalization
+        - Jordan Canonical Form
+        - Exponentiation
+
+- [ ] Overloaded Operators for Matrix and Vector Types

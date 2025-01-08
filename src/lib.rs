@@ -56,6 +56,8 @@ impl<F: Field, const R: usize, const C: usize> Matrix<F, R, C> {
     /*
     pub fn reduce(&self) -> Matrix<F, R, C> { // row reduction
         let mut result: [[F; C]; R] = self.0.clone();
+        // Upper Triangularize
+        // For all rows below it 
         for above_index in 0..R {
             most_significant = 0;
             while result[above_index][most_significant] != F::zero() {
@@ -84,6 +86,16 @@ impl<F: Field, const R: usize> Deref for Vector<F, R> {
 impl<F: Field, const R: usize> DerefMut for Vector<F, R> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
+    }
+}
+impl<F: Field, const R: usize> Vector<F, R> {
+    pub fn to_matrix(&self) -> Matrix<F, R, 1> {
+        let mut column: [[F; 1]; R] = [[F::zero(); 1]; R];
+        for i in 0..R {
+            column[i][0] = self[i];
+        }
+
+        Matrix(column)
     }
 }
 
@@ -176,20 +188,13 @@ mod tests {
 
     #[test]
     fn create() {
-        let a: Matrix<i32, 2, 3> = Matrix([[1,2,3],[4,5,6]]);
-        let b: Matrix<i32, 3, 2> = Matrix([[7,8],[9,10],[11,12]]);
-        let c: Matrix<i32, 2, 2> = mmul(a, b);
-        print!("{:?}\n", c);
+        let a: Matrix<f32, 3, 3> = Matrix([[50.0, 9.1, 33.6781],[17.3, 19.76849, 666.666],[2.0, 4.2, 1.1]]);
+        let b: Matrix<f32, 3, 3> = Matrix([[1.0, 0.0, 9.3],[0.2, 9.0, 3.0],[2.1, 0.0, 0.0]]);
 
-        let d: Matrix<i32, 3, 3> = identity();
-        print!("{:?}\n", d);
-        let v: Vector<i32, 3> = Vector([1,2,3]);
-        let w = vmul(d, v);
+        let c = mmul(a, b);
+        print!("{:?}\n{:?}\n{:?}\n", a, b, c);
+        let v: Vector<f32, 3> = Vector([1.0, 0.0, 0.0]);
+        let w = vmul(c, v);
         print!("{:?}\n", w);
-
-        let e: Matrix<i32, 3, 3> = zero();
-        print!("{:?}\n", e);
-        let x = vmul(e, v);
-        print!("{:?}\n", x);
     }
 }
