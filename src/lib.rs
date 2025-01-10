@@ -1,21 +1,62 @@
 use num::Num;
-use std::ops::Deref;
-use std::ops::DerefMut;
+use std::ops;
 
 pub trait Field: Num + Copy {}
 impl<T: Num + Copy> Field for T {}
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Matrix<F: Field, const R: usize, const C: usize> ([[F; C]; R]); 
-impl<F: Field, const R: usize, const C: usize> Deref for Matrix<F, R, C> {
+impl<F: Field, const R: usize, const C: usize> ops::Deref for Matrix<F, R, C> {
     type Target = [[F; C]; R];
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
-impl<F: Field, const R: usize, const C: usize> DerefMut for Matrix<F, R, C> {
+impl<F: Field, const R: usize, const C: usize> ops::DerefMut for Matrix<F, R, C> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
+    }
+}
+impl<F: Field, const R: usize, const C: usize> ops::Add<Matrix<F, R, C>> for Matrix<F, R, C> {
+    type Output = Matrix<F, R, C>;
+
+    fn add(self, right: Matrix<F, R, C>) -> Matrix<F, R, C> {
+        madd(self, right)
+    }
+}
+impl<F: Field, const R: usize, const C: usize> ops::Sub<Matrix<F, R, C>> for Matrix<F, R, C> {
+    type Output = Matrix<F, R, C>;
+
+    fn sub(self, right: Matrix<F, R, C>) -> Matrix<F, R, C> {
+        msub(self, right)
+    }
+}
+impl<F: Field, const R: usize, const C: usize> ops::Mul<F> for Matrix<F, R, C> {
+    type Output = Matrix<F, R, C>;
+
+    fn mul(self, left: F) -> Matrix<F, R, C> {
+        mscale(left, self)
+    }
+}
+impl<F: Field, const R: usize, const C: usize> ops::Div<F> for Matrix<F, R, C> {
+    type Output = Matrix<F, R, C>;
+
+    fn div(self, left: F) -> Matrix<F, R, C> {
+        mdiv(left, self)
+    }
+}
+impl<F: Field, const L: usize, const M: usize, const N: usize> ops::Mul<Matrix<F, M, N>> for Matrix<F, L, M> {
+    type Output = Matrix<F, L, N>;
+
+    fn mul(self, right: Matrix<F, M, N>) -> Matrix<F, L, N> {
+        mmul(self, right)
+    }
+}
+impl<F: Field, const R: usize, const C: usize> ops::Mul<Vector<F, C>> for Matrix<F, R, C> {
+    type Output = Vector<F, R>;
+
+    fn mul(self, right: Vector<F, C>) -> Vector<F, R> {
+        vmul(self, right)
     }
 }
 impl<F: Field, const R: usize, const C: usize> Matrix<F, R, C> {
@@ -143,17 +184,52 @@ impl<F: Field, const R: usize, const C: usize> Matrix<F, R, C> {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Vector<F: Field, const R: usize> ([F; R]);
-impl<F: Field, const R: usize> Deref for Vector<F, R> {
+impl<F: Field, const R: usize> ops::Deref for Vector<F, R> {
     type Target = [F; R];
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
-impl<F: Field, const R: usize> DerefMut for Vector<F, R> {
+impl<F: Field, const R: usize> ops::DerefMut for Vector<F, R> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
+    }
+}
+impl<F: Field, const R: usize> ops::Add<Vector<F, R>> for Vector<F, R> {
+    type Output = Vector<F, R>;
+
+    fn add(self, right: Vector<F, R>) -> Vector<F, R> {
+        vadd(self, right)
+    }
+}
+impl<F: Field, const R: usize> ops::Sub<Vector<F, R>> for Vector<F, R> {
+    type Output = Vector<F, R>;
+
+    fn sub(self, right: Vector<F, R>) -> Vector<F, R> {
+        vsub(self, right)
+    }
+}
+impl<F: Field, const R: usize> ops::Mul<F> for Vector<F, R> {
+    type Output = Vector<F, R>;
+
+    fn mul(self, left: F) -> Vector<F, R> {
+        vscale(left, self)
+    }
+}
+impl<F: Field, const R: usize> ops::Div<F> for Vector<F, R> {
+    type Output = Vector<F, R>;
+
+    fn div(self, left: F) -> Vector<F, R> {
+        vdiv(left, self)
+    }
+}
+impl<F: Field, const R: usize> ops::Mul<Vector<F, R>> for Vector<F, R> {
+    type Output = F;
+
+    fn mul(self, right: Vector<F, R>) -> F {
+        dot(self, right)
     }
 }
 impl<F: Field, const R: usize> Vector<F, R> {
@@ -177,11 +253,31 @@ pub fn vscale<F: Field, const R: usize>(scalar: F, vector: Vector<F, R>) -> Vect
     Vector(result)
 }
 
+pub fn vdiv<F: Field, const R: usize>(scalar: F, vector: Vector<F, R>) -> Vector<F, R> { 
+    let mut result: [F; R] = [F::zero(); R];
+    for i in 0..R {
+        result[i] = vector[i] / scalar;
+    }
+
+    Vector(result)
+}
+
 pub fn mscale<F: Field, const R: usize, const C: usize>(scalar: F, matrix: Matrix<F, R, C>) -> Matrix<F, R, C> { 
     let mut result: [[F; C]; R] = [[F::zero(); C]; R];
     for i in 0..R {
         for j in 0..C {
             result[i][j] = scalar * matrix[i][j];
+        }
+    }
+
+    Matrix(result)
+}
+
+pub fn mdiv<F: Field, const R: usize, const C: usize>(scalar: F, matrix: Matrix<F, R, C>) -> Matrix<F, R, C> { 
+    let mut result: [[F; C]; R] = [[F::zero(); C]; R];
+    for i in 0..R {
+        for j in 0..C {
+            result[i][j] = matrix[i][j] / scalar;
         }
     }
 
@@ -197,11 +293,31 @@ pub fn vadd<F: Field, const R: usize>(left: Vector<F, R>, right: Vector<F, R>) -
     Vector(result)
 }
 
+pub fn vsub<F: Field, const R: usize>(left: Vector<F, R>, right: Vector<F, R>) -> Vector<F, R> { 
+    let mut result: [F; R] = [F::zero(); R];
+    for i in 0..R {
+        result[i] = left[i] - right[i];
+    }
+
+    Vector(result)
+}
+
 pub fn madd<F: Field, const R: usize, const C: usize>(left: Matrix<F, R, C>, right: Matrix<F, R, C>) -> Matrix<F, R, C> { 
     let mut result: [[F; C]; R] = [[F::zero(); C]; R];
     for i in 0..R {
         for j in 0..C {
             result[i][j] = left[i][j] + right[i][j];
+        }
+    }
+
+    Matrix(result)
+}
+
+pub fn msub<F: Field, const R: usize, const C: usize>(left: Matrix<F, R, C>, right: Matrix<F, R, C>) -> Matrix<F, R, C> { 
+    let mut result: [[F; C]; R] = [[F::zero(); C]; R];
+    for i in 0..R {
+        for j in 0..C {
+            result[i][j] = left[i][j] - right[i][j];
         }
     }
 
@@ -255,35 +371,55 @@ mod tests {
     use super::*;
 
     #[test]
-    fn create() {
-        let a: Matrix<f32, 3, 3> = Matrix([[50.0, 9.1, 33.6781],[17.3, 19.76849, 666.666],[2.0, 4.2, 1.1]]);
-        let b: Matrix<f32, 3, 3> = Matrix([[1.0, 0.0, 9.3],[0.2, 9.0, 3.0],[2.1, 0.0, 0.0]]);
+    fn add() {
+        let a: Matrix<u8, 2, 2> = Matrix([[1,1],[1,1]]);
+        let b: Matrix<u8, 2, 2> = Matrix([[1,0],[0,1]]);
+        let c: Matrix<u8, 2, 2> = Matrix([[2,1],[1,2]]);
+        assert_eq!((a + b), c);
+    }
 
-        let c = mmul(a, b);
-        print!("{:?}\n{:?}\n{:?}\n", a, b, c);
-        let v: Vector<f32, 3> = Vector([1.0, 0.0, 0.0]);
-        let w = vmul(c, v);
-        print!("{:?}\n", w);
+    #[test]
+    fn sub() {
+        let a: Matrix<u8, 2, 2> = Matrix([[1,1],[1,1]]);
+        let b: Matrix<u8, 2, 2> = Matrix([[1,0],[0,1]]);
+        let c: Matrix<u8, 2, 2> = Matrix([[0,1],[1,0]]);
+        assert_eq!((a - b), c);
+    }
+
+    #[test]
+    fn mul() {
+        let a: Matrix<u8, 2, 2> = Matrix([[1,1],[1,1]]);
+        let b: Matrix<u8, 2, 2> = Matrix([[1,0],[0,1]]);
+        assert_eq!((a * b), a);
+
+        let v: Vector<u8, 2> = Vector([1,1]);
+        assert_eq!((b * v), v);
+        
+        assert_eq!((v * v), 2u8);
+
+        let z: Matrix<u8, 2, 2> = Matrix([[0,0],[0,0]]);
+        assert_eq!((a * 0), z);
+
+        let z: Vector<u8, 2> = Vector([0,0]);
+        assert_eq!((v * 0), z);
+    }
+
+    #[test]
+    fn div() {
+        let a: Matrix<u8, 2, 2> = Matrix([[4,2],[2,0]]);
+        let b: Matrix<u8, 2, 2> = Matrix([[2,1],[1,0]]);
+        assert_eq!((a / 2), b);
+        
+        let v: Vector<u8, 2> = Vector([4,2]);
+        let w: Vector<u8, 2> = Vector([2,1]);
+        assert_eq!((v / 2), w);
     }
 
     #[test]
     fn reduce() {
-        let a: Matrix<f64, 4, 5> = Matrix([[0.1, 0.2, 0.2, 0.1, 8.0],[0.8, 0.4, 0.2, 0.0, 7.0],[0.5, 0.4, 0.3, 0.2, 6.0],[0.9, 0.4, 0.6, 0.2, 5.0]]);
-        let b: Matrix<f64, 4, 5> = a.reduce();
-        print!("{:?}\n{:?}\n", a, b);
-
-        let a: Matrix<f64, 4, 4> = Matrix([[0.1, 0.2, 0.2, 0.1],[0.1, 0.2, 0.2, 0.1],[0.5, 0.4, 0.3, 0.2],[0.9, 0.4, 0.6, 0.2]]);
-        let b: Matrix<f64, 4, 4> = a.reduce();
-        print!("{:?}\n{:?}\n", a, b);
-
-        let c: Matrix<i32, 4, 5> = Matrix([[1, 2, 2, 1, 80],[9, 5, 8, 7, 70],[5, 4, 3, 2, 60],[9, 4, 6, 2, 50]]);
-        let d: Matrix<i32, 4, 5> = c.reduce();
-        print!("{:?}\n{:?}\n", c, d);
-
-        let c: Matrix<i32, 4, 4> = Matrix([[1, 2, 2, 1],[1, 2, 2, 1],[5, 4, 3, 2],[9, 4, 6, 2]]);
-        let d: Matrix<i32, 4, 4> = c.reduce();
-        print!("{:?}\n{:?}\n", c, d);
-
-        println!("{}", a.rank())
+        let a: Matrix<u8, 2, 2> = Matrix([[2,2],[2,2]]);
+        let b: Matrix<u8, 2, 2> = Matrix([[1,1],[0,0]]);
+        assert_eq!(a.reduce(), b);
+        assert_eq!(a.rank(), 1);
     }
 }

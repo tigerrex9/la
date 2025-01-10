@@ -1,7 +1,8 @@
 # Rust Linear Algebra Library
 ## Features
-- [ ] Vector Datastructure
-- [ ] Matrix Datastructure
+- Datastructures
+    - [x] Vector Datastructure
+    - [x] Matrix Datastructure
 - Functions
     - [x] Vector addition and scalar multiplication
     - [x] Matrix addition and scalar multiplication
@@ -20,4 +21,4 @@
         - Jordan Canonical Form
         - Exponentiation
 
-- [ ] Overloaded Operators for Matrix and Vector Types
+- [x] Overloaded Operators for Matrix and Vector Types
