@@ -62,7 +62,7 @@ impl<F: Field, const R: usize, const C: usize> Matrix<F, R, C> {
         Matrix(result)
     }
 
-    pub fn reduce(&self) -> Matrix<F, R, C> {
+    pub fn reduce(&self) -> Matrix<F, R, C> { // I am getting some pretty serious error with this function
         // I considered a recursive approach to this, 
         // but the conceptual simplicity comes at the cost of performance.
 
@@ -116,11 +116,31 @@ impl<F: Field, const R: usize, const C: usize> Matrix<F, R, C> {
 
         Matrix(result)
     }
-    /*
-    pub fn rank(&self) -> usize {
 
+    pub fn rank(&self) -> usize {
+        let is_empty = |row: [F; C]| -> bool { // idk if this is how you are supposed to use closures but whatever
+            for i in row {
+                if i != F::zero() {
+                    return false;
+                }
+            }
+
+            true
+        };
+
+        let reduced: Matrix<F, R, C> = self.reduce();
+
+        let mut first_empty_row: usize = 0;
+        while first_empty_row < R { // find first empty row (if one exists)
+            if is_empty(reduced.0[first_empty_row]) {
+                break;
+            }
+
+            first_empty_row += 1;
+        }
+        
+        first_empty_row
     }
-    */
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -248,20 +268,22 @@ mod tests {
 
     #[test]
     fn reduce() {
-        let a: Matrix<f64, 4, 4> = Matrix([[0.1, 0.2, 0.2, 0.1],[0.8, 0.4, 0.2, 0.0],[0.5, 0.4, 0.3, 0.2],[0.9, 0.4, 0.6, 0.2]]);
-        let b: Matrix<f64, 4, 4> = a.reduce();
+        let a: Matrix<f64, 4, 5> = Matrix([[0.1, 0.2, 0.2, 0.1, 8.0],[0.8, 0.4, 0.2, 0.0, 7.0],[0.5, 0.4, 0.3, 0.2, 6.0],[0.9, 0.4, 0.6, 0.2, 5.0]]);
+        let b: Matrix<f64, 4, 5> = a.reduce();
         print!("{:?}\n{:?}\n", a, b);
 
         let a: Matrix<f64, 4, 4> = Matrix([[0.1, 0.2, 0.2, 0.1],[0.1, 0.2, 0.2, 0.1],[0.5, 0.4, 0.3, 0.2],[0.9, 0.4, 0.6, 0.2]]);
         let b: Matrix<f64, 4, 4> = a.reduce();
         print!("{:?}\n{:?}\n", a, b);
 
-        let c: Matrix<i32, 4, 4> = Matrix([[1, 2, 2, 1],[9, 5, 8, 7],[5, 4, 3, 2],[9, 4, 6, 2]]);
-        let d: Matrix<i32, 4, 4> = c.reduce();
+        let c: Matrix<i32, 4, 5> = Matrix([[1, 2, 2, 1, 80],[9, 5, 8, 7, 70],[5, 4, 3, 2, 60],[9, 4, 6, 2, 50]]);
+        let d: Matrix<i32, 4, 5> = c.reduce();
         print!("{:?}\n{:?}\n", c, d);
 
         let c: Matrix<i32, 4, 4> = Matrix([[1, 2, 2, 1],[1, 2, 2, 1],[5, 4, 3, 2],[9, 4, 6, 2]]);
         let d: Matrix<i32, 4, 4> = c.reduce();
         print!("{:?}\n{:?}\n", c, d);
+
+        println!("{}", a.rank())
     }
 }

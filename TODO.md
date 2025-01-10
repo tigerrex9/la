@@ -12,7 +12,7 @@
         - [ ] Orthogonalization
     - [x] Row Reduction
         - [x] Row swap method
-        - [ ] Rank Calculation
+        - [x] Rank Calculation
     - [ ] Determinant
     - [ ] Inverse
     - [ ] Eigenvalues and Eigenvectors
