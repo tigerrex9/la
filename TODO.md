@@ -10,8 +10,9 @@
     - [x] Dot Product
         - [ ] Angle
         - [ ] Orthogonalization
-    - [ ] Row Reduction
-        - Rank Calculation
+    - [x] Row Reduction
+        - [x] Row swap method
+        - [ ] Rank Calculation
     - [ ] Determinant
     - [ ] Inverse
     - [ ] Eigenvalues and Eigenvectors

@@ -53,22 +53,70 @@ impl<F: Field, const R: usize, const C: usize> Matrix<F, R, C> {
         Matrix(result)
     }
 
-    /*
-    pub fn reduce(&self) -> Matrix<F, R, C> { // row reduction
+    pub fn swap(&self, first_row: usize, second_row: usize) -> Matrix<F, R, C> { // could improve function by not using temp and cloning from rows of self
         let mut result: [[F; C]; R] = self.0.clone();
-        // Upper Triangularize
-        // For all rows below it 
-        for above_index in 0..R {
-            most_significant = 0;
-            while result[above_index][most_significant] != F::zero() {
+        let temp: [F; C] = result[first_row];
+        result[first_row] = result[second_row];
+        result[second_row] = temp;
 
-            }
-            for below_index in above_index..R {
-                scalar = 
-            }
-        }
+        Matrix(result)
     }
 
+    pub fn reduce(&self) -> Matrix<F, R, C> {
+        // I considered a recursive approach to this, 
+        // but the conceptual simplicity comes at the cost of performance.
+
+        let mut result: [[F; C]; R] = self.0.clone();
+        let mut row: usize = 0;
+
+        for col in 0..C { // for every column
+            if row >= R {
+                break;
+            }
+
+            // find a row with a non-zero entry
+            let mut pivot_row: usize = R; // invalid row
+            for i in row..R {
+                if result[i][col] != F::zero() {
+                    pivot_row = i;
+                    break;
+                }
+            }
+
+            // if no rows have a non-zero pivot, go to next column
+            if pivot_row == R {
+                continue;
+            }
+
+            // move row with non-zero column to top
+            let temp: [F; C] = result[row];
+            result[row] = result[pivot_row];
+            result[pivot_row] = temp;
+
+            // scale row to have 1 in pivot column
+            let scale: F = result[row][col];
+            for j in col..C { // could iterate from (col + 1) and set result[row][col] = F::one() for optimization
+                result[row][j] = result[row][j] / scale;
+            }
+
+            // eliminate the column from all other rows
+            for i in 0..R {
+                if i == row {
+                    continue;
+                }
+
+                let scale: F = result[i][col];
+                for j in col..C { // start at pivot column because all columns before are 0
+                    result[i][j] = result[i][j] - (scale * result[row][j]);
+                }
+            }
+
+            row += 1;
+        }
+
+        Matrix(result)
+    }
+    /*
     pub fn rank(&self) -> usize {
 
     }
@@ -196,5 +244,24 @@ mod tests {
         let v: Vector<f32, 3> = Vector([1.0, 0.0, 0.0]);
         let w = vmul(c, v);
         print!("{:?}\n", w);
+    }
+
+    #[test]
+    fn reduce() {
+        let a: Matrix<f64, 4, 4> = Matrix([[0.1, 0.2, 0.2, 0.1],[0.8, 0.4, 0.2, 0.0],[0.5, 0.4, 0.3, 0.2],[0.9, 0.4, 0.6, 0.2]]);
+        let b: Matrix<f64, 4, 4> = a.reduce();
+        print!("{:?}\n{:?}\n", a, b);
+
+        let a: Matrix<f64, 4, 4> = Matrix([[0.1, 0.2, 0.2, 0.1],[0.1, 0.2, 0.2, 0.1],[0.5, 0.4, 0.3, 0.2],[0.9, 0.4, 0.6, 0.2]]);
+        let b: Matrix<f64, 4, 4> = a.reduce();
+        print!("{:?}\n{:?}\n", a, b);
+
+        let c: Matrix<i32, 4, 4> = Matrix([[1, 2, 2, 1],[9, 5, 8, 7],[5, 4, 3, 2],[9, 4, 6, 2]]);
+        let d: Matrix<i32, 4, 4> = c.reduce();
+        print!("{:?}\n{:?}\n", c, d);
+
+        let c: Matrix<i32, 4, 4> = Matrix([[1, 2, 2, 1],[1, 2, 2, 1],[5, 4, 3, 2],[9, 4, 6, 2]]);
+        let d: Matrix<i32, 4, 4> = c.reduce();
+        print!("{:?}\n{:?}\n", c, d);
     }
 }
