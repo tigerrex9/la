@@ -60,6 +60,18 @@ impl<F: Field, const R: usize, const C: usize> ops::Mul<Vector<F, C>> for Matrix
     }
 }
 impl<F: Field, const R: usize, const C: usize> Matrix<F, R, C> {
+    pub fn from(array: [[F; C]; R]) -> Matrix<F, R, C> {
+        Matrix(array)
+    }
+
+    pub fn to_array(&self) -> [[F; C]; R] {
+        self.0
+    }
+
+    pub fn as_array(&mut self) -> [[F; C]; R] {
+        self.0
+    }
+
     pub fn rows(&self) -> usize {
         R
     }
@@ -69,7 +81,7 @@ impl<F: Field, const R: usize, const C: usize> Matrix<F, R, C> {
     }
 
     pub fn get_row(&self, row_index: usize) -> Vector<F, C> {
-        Vector(self[row_index])
+        Vector::from(self[row_index])
     }
 
     pub fn get_column(&self, column_index: usize) -> Vector<F, R> {
@@ -79,7 +91,7 @@ impl<F: Field, const R: usize, const C: usize> Matrix<F, R, C> {
             column[i] = self[i][column_index];
         }
 
-        Vector(column)
+        Vector::from(column)
     }
 
     pub fn transpose(&self) -> Matrix<F, C, R> {
@@ -91,7 +103,7 @@ impl<F: Field, const R: usize, const C: usize> Matrix<F, R, C> {
             }
         }
 
-        Matrix(result)
+        Matrix::from(result)
     }
 
     pub fn swap(&self, first_row: usize, second_row: usize) -> Matrix<F, R, C> { // could improve function by not using temp and cloning from rows of self
@@ -100,7 +112,7 @@ impl<F: Field, const R: usize, const C: usize> Matrix<F, R, C> {
         result[first_row] = result[second_row];
         result[second_row] = temp;
 
-        Matrix(result)
+        Matrix::from(result)
     }
 
     pub fn reduce(&self) -> Matrix<F, R, C> { // I am getting some pretty serious error with this function
@@ -155,7 +167,7 @@ impl<F: Field, const R: usize, const C: usize> Matrix<F, R, C> {
             row += 1;
         }
 
-        Matrix(result)
+        Matrix::from(result)
     }
 
     pub fn rank(&self) -> usize {
@@ -233,13 +245,25 @@ impl<F: Field, const R: usize> ops::Mul<Vector<F, R>> for Vector<F, R> {
     }
 }
 impl<F: Field, const R: usize> Vector<F, R> {
+    pub fn from(array: [F; R]) -> Vector<F, R> {
+        Vector(array)
+    }
+
+    pub fn to_array(&self) -> [F; R] {
+        self.0
+    }
+
+    pub fn as_array(&mut self) -> [F; R] {
+        self.0
+    }
+
     pub fn to_matrix(&self) -> Matrix<F, R, 1> {
         let mut column: [[F; 1]; R] = [[F::zero(); 1]; R];
         for i in 0..R {
             column[i][0] = self[i];
         }
 
-        Matrix(column)
+        Matrix::from(column)
     }
 }
 
@@ -250,7 +274,7 @@ pub fn vscale<F: Field, const R: usize>(scalar: F, vector: Vector<F, R>) -> Vect
         result[i] = scalar * vector[i];
     }
 
-    Vector(result)
+    Vector::from(result)
 }
 
 pub fn vdiv<F: Field, const R: usize>(scalar: F, vector: Vector<F, R>) -> Vector<F, R> { 
@@ -259,7 +283,7 @@ pub fn vdiv<F: Field, const R: usize>(scalar: F, vector: Vector<F, R>) -> Vector
         result[i] = vector[i] / scalar;
     }
 
-    Vector(result)
+    Vector::from(result)
 }
 
 pub fn mscale<F: Field, const R: usize, const C: usize>(scalar: F, matrix: Matrix<F, R, C>) -> Matrix<F, R, C> { 
@@ -270,7 +294,7 @@ pub fn mscale<F: Field, const R: usize, const C: usize>(scalar: F, matrix: Matri
         }
     }
 
-    Matrix(result)
+    Matrix::from(result)
 }
 
 pub fn mdiv<F: Field, const R: usize, const C: usize>(scalar: F, matrix: Matrix<F, R, C>) -> Matrix<F, R, C> { 
@@ -281,7 +305,7 @@ pub fn mdiv<F: Field, const R: usize, const C: usize>(scalar: F, matrix: Matrix<
         }
     }
 
-    Matrix(result)
+    Matrix::from(result)
 }
 
 pub fn vadd<F: Field, const R: usize>(left: Vector<F, R>, right: Vector<F, R>) -> Vector<F, R> { 
@@ -290,7 +314,7 @@ pub fn vadd<F: Field, const R: usize>(left: Vector<F, R>, right: Vector<F, R>) -
         result[i] = left[i] + right[i];
     }
 
-    Vector(result)
+    Vector::from(result)
 }
 
 pub fn vsub<F: Field, const R: usize>(left: Vector<F, R>, right: Vector<F, R>) -> Vector<F, R> { 
@@ -299,7 +323,7 @@ pub fn vsub<F: Field, const R: usize>(left: Vector<F, R>, right: Vector<F, R>) -
         result[i] = left[i] - right[i];
     }
 
-    Vector(result)
+    Vector::from(result)
 }
 
 pub fn madd<F: Field, const R: usize, const C: usize>(left: Matrix<F, R, C>, right: Matrix<F, R, C>) -> Matrix<F, R, C> { 
@@ -310,7 +334,7 @@ pub fn madd<F: Field, const R: usize, const C: usize>(left: Matrix<F, R, C>, rig
         }
     }
 
-    Matrix(result)
+    Matrix::from(result)
 }
 
 pub fn msub<F: Field, const R: usize, const C: usize>(left: Matrix<F, R, C>, right: Matrix<F, R, C>) -> Matrix<F, R, C> { 
@@ -321,7 +345,7 @@ pub fn msub<F: Field, const R: usize, const C: usize>(left: Matrix<F, R, C>, rig
         }
     }
 
-    Matrix(result)
+    Matrix::from(result)
 }
 
 pub fn dot<F: Field, const R: usize>(left: Vector<F, R>, right: Vector<F, R>) -> F {
@@ -341,7 +365,7 @@ pub fn mmul<F: Field, const L: usize, const M: usize, const N: usize>(left: Matr
         }
     }
         
-    Matrix(result)
+    Matrix::from(result)
 }
 
 pub fn vmul<F: Field, const R: usize, const C: usize>(left: Matrix<F, R, C>, right: Vector<F, C>) -> Vector<F, R> {
@@ -350,7 +374,7 @@ pub fn vmul<F: Field, const R: usize, const C: usize>(left: Matrix<F, R, C>, rig
         result[i] = dot(left.get_row(i), right);
     }
 
-    Vector(result)
+    Vector::from(result)
 }
 
 pub fn identity<F: Field, const D: usize> () -> Matrix<F, D, D> {
@@ -359,11 +383,11 @@ pub fn identity<F: Field, const D: usize> () -> Matrix<F, D, D> {
         result[i][i] = F::one();
     }
 
-    Matrix(result)
+    Matrix::from(result)
 }
 
 pub fn zero<F: Field, const D:usize> () -> Matrix<F, D, D> {
-    Matrix([[F::zero(); D]; D])
+    Matrix::from([[F::zero(); D]; D])
 }
 
 #[cfg(test)]
@@ -372,53 +396,53 @@ mod tests {
 
     #[test]
     fn add() {
-        let a: Matrix<u8, 2, 2> = Matrix([[1,1],[1,1]]);
-        let b: Matrix<u8, 2, 2> = Matrix([[1,0],[0,1]]);
-        let c: Matrix<u8, 2, 2> = Matrix([[2,1],[1,2]]);
+        let a: Matrix<u8, 2, 2> = Matrix::from([[1,1],[1,1]]);
+        let b: Matrix<u8, 2, 2> = Matrix::from([[1,0],[0,1]]);
+        let c: Matrix<u8, 2, 2> = Matrix::from([[2,1],[1,2]]);
         assert_eq!((a + b), c);
     }
 
     #[test]
     fn sub() {
-        let a: Matrix<u8, 2, 2> = Matrix([[1,1],[1,1]]);
-        let b: Matrix<u8, 2, 2> = Matrix([[1,0],[0,1]]);
-        let c: Matrix<u8, 2, 2> = Matrix([[0,1],[1,0]]);
+        let a: Matrix<u8, 2, 2> = Matrix::from([[1,1],[1,1]]);
+        let b: Matrix<u8, 2, 2> = Matrix::from([[1,0],[0,1]]);
+        let c: Matrix<u8, 2, 2> = Matrix::from([[0,1],[1,0]]);
         assert_eq!((a - b), c);
     }
 
     #[test]
     fn mul() {
-        let a: Matrix<u8, 2, 2> = Matrix([[1,1],[1,1]]);
-        let b: Matrix<u8, 2, 2> = Matrix([[1,0],[0,1]]);
+        let a: Matrix<u8, 2, 2> = Matrix::from([[1,1],[1,1]]);
+        let b: Matrix<u8, 2, 2> = Matrix::from([[1,0],[0,1]]);
         assert_eq!((a * b), a);
 
-        let v: Vector<u8, 2> = Vector([1,1]);
+        let v: Vector<u8, 2> = Vector::from([1,1]);
         assert_eq!((b * v), v);
         
         assert_eq!((v * v), 2u8);
 
-        let z: Matrix<u8, 2, 2> = Matrix([[0,0],[0,0]]);
+        let z: Matrix<u8, 2, 2> = Matrix::from([[0,0],[0,0]]);
         assert_eq!((a * 0), z);
 
-        let z: Vector<u8, 2> = Vector([0,0]);
+        let z: Vector<u8, 2> = Vector::from([0,0]);
         assert_eq!((v * 0), z);
     }
 
     #[test]
     fn div() {
-        let a: Matrix<u8, 2, 2> = Matrix([[4,2],[2,0]]);
-        let b: Matrix<u8, 2, 2> = Matrix([[2,1],[1,0]]);
+        let a: Matrix<u8, 2, 2> = Matrix::from([[4,2],[2,0]]);
+        let b: Matrix<u8, 2, 2> = Matrix::from([[2,1],[1,0]]);
         assert_eq!((a / 2), b);
         
-        let v: Vector<u8, 2> = Vector([4,2]);
-        let w: Vector<u8, 2> = Vector([2,1]);
+        let v: Vector<u8, 2> = Vector::from([4,2]);
+        let w: Vector<u8, 2> = Vector::from([2,1]);
         assert_eq!((v / 2), w);
     }
 
     #[test]
     fn reduce() {
-        let a: Matrix<u8, 2, 2> = Matrix([[2,2],[2,2]]);
-        let b: Matrix<u8, 2, 2> = Matrix([[1,1],[0,0]]);
+        let a: Matrix<u8, 2, 2> = Matrix::from([[2,2],[2,2]]);
+        let b: Matrix<u8, 2, 2> = Matrix::from([[1,1],[0,0]]);
         assert_eq!(a.reduce(), b);
         assert_eq!(a.rank(), 1);
     }
