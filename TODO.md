@@ -1,24 +1,27 @@
 # Rust Linear Algebra Library
 ## Features
 - Datastructures
+	- [x] Matrix Datastructure
     - [x] Vector Datastructure
-    - [x] Matrix Datastructure
 - Functions
     - [x] Vector addition and scalar multiplication
     - [x] Matrix addition and scalar multiplication
     - [x] Transposition
+    - [x] Augmentation*
+        - *Have to specify output size because you cannot have constant expressions in generics for some reason.
     - [x] Matrix Multiplication
     - [x] Dot Product
-        - [ ] Angle
-        - [ ] Orthogonalization
+        - Angle?
+        - Orthogonalization?
     - [x] Row Reduction
         - [x] Row swap method
         - [x] Rank Calculation
     - [ ] Determinant
-    - [ ] Inverse
+    - [x] Inverse*
+        - *Have to specify the number of rows times two because you cannot have constant expressions in generics for some reason.
     - [ ] Eigenvalues and Eigenvectors
         - Diagonalization
         - Jordan Canonical Form
         - Exponentiation
-
+	- [ ] Derivative and Integral for vectors over int and float
 - [x] Overloaded Operators for Matrix and Vector Types

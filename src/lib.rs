@@ -337,6 +337,41 @@ pub fn msub<F: Num + Copy, const R: usize, const C: usize>(left: Matrix<F, R, C>
     Matrix::from(result)
 }
 
+pub fn maugment<F: Num + Copy, const R: usize, const C1: usize, const C2: usize, const C1C2: usize> (left: Matrix<F, R, C1>, right: Matrix<F, R, C2>) -> Matrix<F, R, C1C2> { // :(
+    // Matrix<F, R, (C1 + C2)> isn't legal without #![feature(generic_const_exprs)], 
+    // so have to use assert for now.
+    const { assert!((C1 + C2) == C1C2) } 
+
+    let mut result: [[F; C1C2]; R] = [[F::zero(); C1C2]; R];
+    for i in 0..R {
+        for j in 0..C1 {
+            result[i][j] = left[i][j];
+        }
+
+        for j in 0..C2 {
+            result[i][j + C1] = right[i][j];
+        }
+    }
+
+    Matrix::from(result)
+}
+
+pub fn vaugment<F: Num + Copy, const R: usize, const C: usize, const C1: usize> (left: Matrix<F, R, C>, right: Vector<F, R>) -> Matrix<F, R, C1> { // :(
+    // Matrix<F, R, (C + 1)> isn't legal without #![feature(generic_const_exprs)], 
+    // so have to use assert for now.
+    const { assert!(C1 == C + 1) } 
+
+    let mut result: [[F; C1]; R] = [[F::zero(); C1]; R];
+    for i in 0..R {
+        for j in 0..C {
+            result[i][j] = left[i][j];
+        }
+        result[i][C] = right[i];
+    }
+
+    Matrix::from(result)
+}
+
 pub fn dot<F: Num + Copy, const R: usize>(left: Vector<F, R>, right: Vector<F, R>) -> F {
     let mut product: F = F::zero();
     for i in 0..R {
@@ -364,6 +399,25 @@ pub fn vmul<F: Num + Copy, const R: usize, const C: usize>(left: Matrix<F, R, C>
     }
 
     Vector::from(result)
+}
+
+pub fn inverse<F: Num + Copy, const R: usize, const R2: usize> (matrix: Matrix<F, R, R>) -> Matrix<F, R, R> { // :( Have to specify R2 when calling
+    // Matrix<F, R, (R + R)> isn't legal without #![feature(generic_const_exprs)], 
+    // so have to use assert for now.
+    const { assert!((R + R) == R2) }
+    assert!(matrix.rank() == R);
+
+    let augmented: Matrix<F, R, R2> = maugment(matrix, identity());
+    let reduced: Matrix<F, R, R2> = augmented.reduce();
+
+    let mut result: [[F; R]; R] = [[F::zero(); R]; R];
+    for i in 0..R {
+        for j in 0..R {
+            result[i][j] = reduced[i][j + R];
+        }
+    }
+
+    Matrix::from(result)
 }
 
 pub fn identity<F: Num + Copy, const D: usize> () -> Matrix<F, D, D> {
@@ -429,10 +483,29 @@ mod tests {
     }
 
     #[test]
-    fn reduce() {
+    fn augmentation() {
+        let a: Matrix<u8, 2, 1> = Matrix::from([[1],[3]]);
+        let b: Matrix<u8, 2, 1> = Matrix::from([[2],[4]]);
+        let c: Matrix<u8, 2, 2> = Matrix::from([[1, 2], [3, 4]]);
+        assert_eq!(maugment(a, b), c);
+
+        let v: Vector<u8, 2> = Vector::from([2,4]);
+        assert_eq!(vaugment(a,v), c);
+    }
+
+    #[test]
+    fn reduction() {
         let a: Matrix<u8, 2, 2> = Matrix::from([[2,2],[2,2]]);
         let b: Matrix<u8, 2, 2> = Matrix::from([[1,1],[0,0]]);
         assert_eq!(a.reduce(), b);
         assert_eq!(a.rank(), 1);
+    }
+
+    #[test]
+    fn inversion() {
+        let a: Matrix<f64, 2, 2> = Matrix::from([[1.0,2.0],[3.0,4.0]]);
+        let b: Matrix<f64, 2, 2> = Matrix::from([[-2.0,1.0],[1.5,-0.5]]);
+        //print!{"{:?}\n{:?}\n", a, b}
+        assert_eq!(inverse::<f64, 2, 4>(a), b);
     }
 }
