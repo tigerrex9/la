@@ -8,7 +8,7 @@
     - [x] Matrix addition and scalar multiplication
     - [x] Transposition
     - [x] Augmentation*
-        - *Have to specify output size because you cannot have constant expressions in generics for some reason.
+        - * Have to specify output size because you cannot have constant expressions in generics for some reason.
     - [x] Matrix Multiplication
     - [x] Dot Product
         - Angle?
@@ -17,11 +17,20 @@
         - [x] Row swap method
         - [x] Rank Calculation
     - [ ] Determinant
+        - Reccursive using Laplace expansion?
+        - Permutation expansion?
+        - Something faster than O(n!)
     - [x] Inverse*
-        - *Have to specify the number of rows times two because you cannot have constant expressions in generics for some reason.
+        - * Have to specify the number of rows times two because you cannot have constant expressions in generics for some reason.
     - [ ] Eigenvalues and Eigenvectors
         - Diagonalization
         - Jordan Canonical Form
         - Exponentiation
 	- [ ] Derivative and Integral for vectors over int and float
-- [x] Overloaded Operators for Matrix and Vector Types
+- Overloaded Operators for Matrix and Vector Types
+    - [x] Vector Addition (+)
+    - [x] Matrix Addition (+)
+    - [x] Dot product (*)
+    - [x] Matrix Multiplication (*)
+    - [x] Left multiplication (*)
+    - [ ] Augmentation (|)
