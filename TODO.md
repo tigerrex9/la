@@ -2,7 +2,9 @@
 ## Features
 - Datastructures
 	- [x] Matrix Datastructure
+        - [ ] Graph
     - [x] Vector Datastructure
+        - [ ] Polynomial
 - Functions
     - [x] Vector addition and scalar multiplication
     - [x] Matrix addition and scalar multiplication
@@ -10,18 +12,20 @@
     - [x] Augmentation*
         - * Have to specify output size because you cannot have constant expressions in generics for some reason.
     - [x] Matrix Multiplication
-    - [x] Dot Product
+    - [x] Dot Product / Inner Product
         - Angle?
         - Orthogonalization?
+    - [x] Outer Product
     - [x] Row Reduction
         - [x] Row swap method
         - [x] Rank Calculation
-    - [ ] Determinant
-        - Reccursive using Laplace expansion?
-        - Permutation expansion?
-        - Something faster than O(n!)
     - [x] Inverse*
         - * Have to specify the number of rows times two because you cannot have constant expressions in generics for some reason.
+    - [ ] Determinant
+        - Reccursive using Laplace expansion?
+            - Requires generic const expressions
+        - Permutation expansion?
+        - Something faster than O(n!)
     - [ ] Eigenvalues and Eigenvectors
         - Diagonalization
         - Jordan Canonical Form
@@ -34,3 +38,5 @@
     - [x] Matrix Multiplication (*)
     - [x] Left multiplication (*)
     - [ ] Augmentation (|)
+        - Cannot implement without generic constant expression.
+        - Rust pls fix :(
