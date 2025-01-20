@@ -4,7 +4,7 @@
 	- [x] Matrix Datastructure
         - [ ] Graph
     - [x] Vector Datastructure
-        - [ ] Polynomial
+        - [x] Polynomial
 - Functions
     - [x] Vector addition and scalar multiplication
     - [x] Matrix addition and scalar multiplication
@@ -30,7 +30,7 @@
         - Diagonalization
         - Jordan Canonical Form
         - Exponentiation
-	- [ ] Derivative and Integral for vectors over int and float
+	- [x] Derivative and Integral for polynomials
 - Overloaded Operators for Matrix and Vector Types
     - [x] Vector Addition (+)
     - [x] Matrix Addition (+)
