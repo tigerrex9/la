@@ -76,6 +76,6 @@ fn inversion() {
     let a: Matrix<f64, 2, 2> = Matrix::from([[1.0,2.0],[3.0,4.0]]);
     let b: Matrix<f64, 2, 2> = Matrix::from([[-2.0,1.0],[1.5,-0.5]]);
     //print!{"{:?}\n{:?}\n", a, b}
-    assert_eq!(inverse::<f64, 2, 4>(a), b);
+    assert_eq!(inverse(a), b);
 }
 

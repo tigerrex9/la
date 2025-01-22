@@ -235,12 +235,12 @@ pub fn msub<F: Num + Copy, const R: usize, const C: usize>(left: Matrix<F, R, C>
     Matrix::from(result)
 }
 
-pub fn maugment<F: Num + Copy, const R: usize, const C1: usize, const C2: usize, const C1C2: usize> (left: Matrix<F, R, C1>, right: Matrix<F, R, C2>) -> Matrix<F, R, C1C2> { // :(
+pub fn maugment<F: Num + Copy, const R: usize, const C1: usize, const C2: usize, const COUT: usize> (left: Matrix<F, R, C1>, right: Matrix<F, R, C2>) -> Matrix<F, R, COUT> { // :(
     // Matrix<F, R, (C1 + C2)> isn't legal without #![feature(generic_const_exprs)], 
     // so have to use assert for now.
-    const { assert!((C1 + C2) == C1C2) }
+    const { assert!((C1 + C2) == COUT) }
 
-    let mut result: [[F; C1C2]; R] = [[F::zero(); C1C2]; R];
+    let mut result: [[F; COUT]; R] = [[F::zero(); COUT]; R];
     for i in 0..R {
         for j in 0..C1 {
             result[i][j] = left[i][j];
@@ -254,12 +254,12 @@ pub fn maugment<F: Num + Copy, const R: usize, const C1: usize, const C2: usize,
     Matrix::from(result)
 }
 
-pub fn vaugment<F: Num + Copy, const R: usize, const C: usize, const C1: usize> (left: Matrix<F, R, C>, right: Vector<F, R>) -> Matrix<F, R, C1> { // :(
+pub fn vaugment<F: Num + Copy, const R: usize, const C: usize, const COUT: usize> (left: Matrix<F, R, C>, right: Vector<F, R>) -> Matrix<F, R, COUT> { // :(
     // Matrix<F, R, (C + 1)> isn't legal without #![feature(generic_const_exprs)], 
     // so have to use assert for now.
-    const { assert!(C1 == C + 1) }
+    const { assert!(COUT == C + 1) }
 
-    let mut result: [[F; C1]; R] = [[F::zero(); C1]; R];
+    let mut result: [[F; COUT]; R] = [[F::zero(); COUT]; R];
     for i in 0..R {
         for j in 0..C {
             result[i][j] = left[i][j];
@@ -290,19 +290,75 @@ pub fn vmul<F: Num + Copy, const R: usize, const C: usize>(left: Matrix<F, R, C>
     Vector::from(result)
 }
 
-pub fn inverse<F: Num + Copy, const R: usize, const R2: usize> (matrix: Matrix<F, R, R>) -> Matrix<F, R, R> { // :( Have to specify R2 when calling
-    // Matrix<F, R, (R + R)> isn't legal without #![feature(generic_const_exprs)], 
-    // so have to use assert for now.
-    const { assert!((R + R) == R2) }
+pub fn inverse<F: Num + Copy, const R: usize> (matrix: Matrix<F, R, R>) -> Matrix<F, R, R> {
     assert!(matrix.rank() == R);
 
-    let augmented: Matrix<F, R, R2> = maugment(matrix, identity());
-    let reduced: Matrix<F, R, R2> = augmented.reduce();
+    let mut augmented: Vec<Vec<F>> = Vec::new();
+    for row in 0..R {
+        let mut v = Vec::new();
+        for col in 0..R {
+            v.push(matrix[row][col]);
+        }
+        
+        for _col in 0..R {
+            v.push(F::zero())
+        }
+
+        v[R + row] = F::one();
+        augmented.push(v);
+    }
+
+    // Copied code from reduce method
+    let mut row: usize = 0;
+
+    for col in 0..R { // for every column
+        if row >= R {
+            break;
+        }
+
+        // find a row with a non-zero entry
+        let mut pivot_row: usize = R; // invalid row
+        for i in row..R {
+            if augmented[i][col] != F::zero() {
+                pivot_row = i;
+                break;
+            }
+        }
+
+        // if no rows have a non-zero pivot, go to next column
+        if pivot_row == R {
+            continue;
+        }
+
+        // move row with non-zero column to top
+        augmented.swap(row, pivot_row);
+
+        // scale row to have 1 in pivot column
+        let scale: F = augmented[row][col];
+        for j in col..(R + R) { // could iterate from (col + 1) and set result[row][col] = F::one() for optimization
+            augmented[row][j] = augmented[row][j] / scale;
+        }
+
+        // eliminate the column from all other rows
+        for i in 0..R {
+            if i == row {
+                continue;
+            }
+
+            let scale: F = augmented[i][col];
+            for j in col..(R + R) { // start at pivot column because all columns before are 0
+                augmented[i][j] = augmented[i][j] - (scale * augmented[row][j]);
+            }
+        }
+
+        row += 1;
+    }
 
     let mut result: [[F; R]; R] = [[F::zero(); R]; R];
+    
     for i in 0..R {
         for j in 0..R {
-            result[i][j] = reduced[i][j + R];
+            result[i][j] = augmented[i][j + R];
         }
     }
 

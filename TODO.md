@@ -19,8 +19,7 @@
     - [x] Row Reduction
         - [x] Row swap method
         - [x] Rank Calculation
-    - [x] Inverse*
-        - * Have to specify the number of rows times two because you cannot have constant expressions in generics for some reason.
+    - [x] Inverse
     - [ ] Determinant
         - Reccursive using Laplace expansion?
             - Requires generic const expressions
