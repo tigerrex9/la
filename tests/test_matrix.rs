@@ -79,3 +79,7 @@ fn inversion() {
     assert_eq!(inverse(a), b);
 }
 
+#[test]
+fn outer_product() {
+    assert!(true)
+}

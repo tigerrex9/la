@@ -14,6 +14,16 @@ impl<F: Num + Copy, const R: usize> ops::DerefMut for Vector<F, R> {
         &mut self.0
     }
 }
+impl<F: Num + Copy, const R: usize> From<[F; R]> for Vector<F, R> {
+    fn from(array: [F; R]) -> Self {
+        Vector(array)
+    }
+}
+impl<F: Num + Copy, const R: usize> Into<[F; R]> for Vector<F, R> {
+    fn into(self) -> [F; R] {
+        self.0
+    }
+}
 impl<F: Num + Copy, const R: usize> ops::Add<Vector<F, R>> for Vector<F, R> {
     type Output = Vector<F, R>;
 
@@ -50,13 +60,6 @@ impl<F: Num + Copy, const R: usize> ops::Mul<Vector<F, R>> for Vector<F, R> {
     }
 }
 impl<F: Num + Copy, const R: usize> Vector<F, R> {
-    pub fn from(array: [F; R]) -> Vector<F, R> {
-        Vector(array)
-    }
-
-    pub fn to_array(&self) -> [F; R] {
-        self.0
-    }
 }
 
 pub fn vscale<F: Num + Copy, const R: usize>(scalar: F, vector: Vector<F, R>) -> Vector<F, R> { 

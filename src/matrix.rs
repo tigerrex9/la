@@ -16,6 +16,16 @@ impl<F: Num + Copy, const R: usize, const C: usize> ops::DerefMut for Matrix<F, 
         &mut self.0
     }
 }
+impl<F: Num + Copy, const R: usize, const C: usize> From<[[F; C]; R]> for Matrix<F, R, C> {
+    fn from(array: [[F; C]; R]) -> Self {
+        Matrix(array)
+    }
+}
+impl<F: Num + Copy, const R: usize, const C: usize> Into<[[F; C]; R]> for Matrix<F, R, C> {
+    fn into(self) -> [[F; C]; R] {
+        self.0
+    }
+}
 impl<F: Num + Copy, const R: usize, const C: usize> ops::Add<Matrix<F, R, C>> for Matrix<F, R, C> {
     type Output = Matrix<F, R, C>;
 
@@ -59,14 +69,6 @@ impl<F: Num + Copy, const R: usize, const C: usize> ops::Mul<Vector<F, C>> for M
     }
 }
 impl<F: Num + Copy, const R: usize, const C: usize> Matrix<F, R, C> {
-    pub fn from(array: [[F; C]; R]) -> Matrix<F, R, C> {
-        Matrix(array)
-    }
-
-    pub fn to_array(&self) -> [[F; C]; R] {
-        self.0
-    }
-
     pub fn rows(&self) -> usize {
         R
     }

@@ -26,9 +26,9 @@
         - Permutation expansion?
         - Something faster than O(n!)
     - [ ] Eigenvalues and Eigenvectors
-        - Diagonalization
-        - Jordan Canonical Form
-        - Exponentiation
+        - [ ] Diagonalization
+        - [ ] Jordan Canonical Form
+        - [ ] Exponentiation
 	- [x] Derivative and Integral for polynomials
 - Overloaded Operators for Matrix and Vector Types
     - [x] Vector Addition (+)
