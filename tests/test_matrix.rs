@@ -81,5 +81,7 @@ fn inversion() {
 
 #[test]
 fn outer_product() {
-    assert!(true)
+    let v: Vector<usize, 3> = Vector::from([1,2,3]);
+    let a: Matrix<usize, 3, 3>= Matrix::from([[1,2,3],[2,4,6],[3,6,9]]);
+    assert_eq!(outer(v, v), a);
 }
