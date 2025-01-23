@@ -30,6 +30,9 @@
         - [ ] Jordan Canonical Form
         - [ ] Exponentiation
 	- [x] Derivative and Integral for polynomials
+    - [ ] Path functions for graphs
+        - [ ] number of paths
+        - [ ] shortest path
 - Overloaded Operators for Matrix and Vector Types
     - [x] Vector Addition (+)
     - [x] Matrix Addition (+)
