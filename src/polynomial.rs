@@ -1,6 +1,8 @@
 use num::{Num, NumCast};
 use std::ops;
 
+use crate::vector::Vector;
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Polynomial<F: Num + Copy> (Vec<F>);
 impl<F: Num + Copy> ops::Deref for Polynomial<F> {
@@ -13,6 +15,36 @@ impl<F: Num + Copy> ops::DerefMut for Polynomial<F> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
+}
+impl<F: Num + Copy> From<Vec<F>> for Polynomial<F> {
+	fn from(vec: Vec<F>) -> Self {
+		Polynomial(vec)
+	}
+}
+impl<F: Num + Copy> Into<Vec<F>> for Polynomial<F> {
+	fn into(self) -> Vec<F> {
+		self.0
+	}
+}
+impl<F: Num + Copy, const R: usize> From<Vector<F, R>> for Polynomial<F> {
+	fn from(vector: Vector<F, R>) -> Self {
+		let array: [F; R] = vector.into();
+		Polynomial(array.into())
+	}
+}
+impl<F: Num + Copy, const R: usize> Into<Vector<F, R>> for Polynomial<F> {
+	fn into(self) -> Vector<F, R> {
+		let mut array: [F; R] = [F::zero(); R];
+
+		let mut i: usize = 0;
+		while (i < R) && (i < self.len()) {
+			array[i] = self.0[i];
+			i += 1
+		}
+
+		Vector::from(array)
+	}
+
 }
 impl<F: Num + Copy> ops::Add<Polynomial<F>> for Polynomial<F> {
     type Output = Polynomial<F>;
@@ -43,14 +75,6 @@ impl<F: Num + Copy> ops::Div<F> for Polynomial<F> {
     }
 }
 impl<F: Num + Copy> Polynomial<F> {
-    pub fn from(vec: Vec<F>) -> Polynomial<F> {
-        Polynomial(vec)
-    }
-
-    pub fn to_vec(&self) -> Vec<F> {
-        self.0.clone()
-    }
-
 	pub fn len(&self) -> usize {
 		self.0.len()
 	}
@@ -60,16 +84,16 @@ impl<F: Num + Copy> Polynomial<F> {
 	}
 
 	pub fn at(&self, x: F) -> F {
-		let mut result: F = F::zero();
+		let mut y: F = F::zero();
 		for i in 0..self.len() {
 			let mut summand: F = self[i];
 			for _ in 0..i {
 				summand = summand * x;
 			}
-			result = result + summand;
+			y = y + summand;
 		}
 
-		result
+		y
 	}
 }
 impl<F: Num + Copy + NumCast> Polynomial<F> {

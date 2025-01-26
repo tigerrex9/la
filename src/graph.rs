@@ -7,14 +7,14 @@ impl<const N: usize> From<[[u8; N]; N]> for Graph<N> {
         Graph(array)
     }
 }
-impl<const N: usize> From<Matrix<u8, N, N>> for Graph<N> {
-    fn from(matrix: Matrix<u8, N, N>) -> Self {
-        Graph(matrix.into())
-    }
-}
 impl<const N: usize> Into<[[u8; N]; N]> for Graph<N> {
     fn into(self) -> [[u8; N]; N] {
         self.0
+    }
+}
+impl<const N: usize> From<Matrix<u8, N, N>> for Graph<N> {
+    fn from(matrix: Matrix<u8, N, N>) -> Self {
+        Graph(matrix.into())
     }
 }
 impl<const N: usize> Into<Matrix<u8, N, N>> for Graph<N> {
